@@ -20,7 +20,7 @@ add_library(tt_layers OBJECT
         bert_output.cpp
         sequence_pool.cpp
         bert_pooler.cpp
-        bert_mlm_head.cpp
+        bert_lm_head.cpp
         prepare_bert_masks.cpp
         albert_layer.cpp
         multi_headed_attention.cpp

@@ -9,9 +9,9 @@
 namespace turbo_transformers {
 namespace layers {
 
-class BertMLMHead {
+class BertLMHead {
   public:
-  BertMLMHead(core::Tensor dense_weight, core::Tensor dense_bias,
+  BertLMHead(core::Tensor dense_weight, core::Tensor dense_bias,
               core::Tensor decoder_weight, core::Tensor decoder_bias,
               core::Tensor layer_norm_weight, core::Tensor layer_norm_bias)
     : dense_weight_(std::move(dense_weight)),

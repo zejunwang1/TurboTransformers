@@ -1,6 +1,6 @@
 // Developed by Wang Zejun
 
-#include "turbo_transformers/layers/bert_mlm_head.h"
+#include "turbo_transformers/layers/bert_lm_head.h"
 
 #include "loguru.hpp"
 #include "turbo_transformers/core/memory.h"
@@ -12,7 +12,7 @@
 namespace turbo_transformers {
 namespace layers {
 
-void BertMLMHead::operator()(const core::Tensor& input_tensor, core::Tensor* output,
+void BertLMHead::operator()(const core::Tensor& input_tensor, core::Tensor* output,
                              const std::string& hidden_act = "gelu") const {
   TT_ENFORCE_EQ(input_tensor.n_dim(), 3, "input's dim should be 3, not %d",
                 input_tensor.n_dim());
@@ -53,7 +53,7 @@ void BertMLMHead::operator()(const core::Tensor& input_tensor, core::Tensor* out
   kernels::AddBias(decoder_bias_, output);
 }
 
-void BertMLMHead::EnforceShapeAndType() const {
+void BertLMHead::EnforceShapeAndType() const {
   TT_ENFORCE_EQ(dense_weight_.n_dim(), 2, "dense weight must be matrix");
   TT_ENFORCE_EQ(dense_bias_.n_dim(), 1, "dense bias must be vector");
   TT_ENFORCE_EQ(dense_weight_.shape(1), dense_bias_.shape(0),

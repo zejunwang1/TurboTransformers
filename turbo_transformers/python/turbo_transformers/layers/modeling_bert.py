@@ -29,6 +29,7 @@ from transformers.models.bert.modeling_bert import BertLayer as TorchBertLayer
 from transformers.models.bert.modeling_bert import BertEncoder as TorchBertEncoder
 from transformers.models.bert.modeling_bert import BertModel as TorchBertModel
 from transformers.models.bert.modeling_bert import BertPooler as TorchBertPooler
+from transformers.models.bert.modeling_bert import BertLMPredictionHead as TorchBertLMHead
 
 import enum
 import numpy as np
@@ -391,6 +392,30 @@ class BertPooler(cxx.BertPooler):
                           try_convert(f['pooler.dense.bias'], device))
 
 
+class BertLMHead(cxx.BertLMHead):
+    def __call__(self,
+                 input_tensor: AnyTensor,
+                 hidden_act: Optional[str] = "gelu",
+                 return_type: Optional[ReturnType] = None,
+                 output: Optional[cxx.Tensor] = None):
+        input_tensor = try_convert(input_tensor)
+        output = create_empty_if_none(output)
+        super(BertLMHead, self).__call__(input_tensor, output, hidden_act)
+        return convert_returns_as_type(output, return_type)
+
+    @staticmethod
+    def from_torch(lm_head: TorchBertLMHead):
+        params = to_param_dict(lm_head)
+        dense_weight = convert2tt_tensor(
+            torch.clone(torch.t(params["transform.dense.weight"]).contiguous()))
+        decoder_weight = convert2tt_tensor(
+            torch.clone(torch.t(params["decoder.weight"]).contiguous()))
+        return BertLMHead(dense_weight, convert2tt_tensor(params["transform.dense.bias"]),
+                          decoder_weight, convert2tt_tensor(params["bias"]),
+                          convert2tt_tensor(params["transform.LayerNorm.weight"]),
+                          convert2tt_tensor(params["transform.LayerNorm.bias"]))
+
+
 class BertModelNoPooler:
     def __init__(self, embeddings: BertEmbeddings, encoder: BertEncoder):
         self.embeddings = embeddings
@@ -609,8 +634,7 @@ class BertModel:
                         device: Optional[torch.device] = None,
                         backend: Optional[str] = None):
         torch_model = TorchBertModel.from_pretrained(model_id_or_path)
-        model = BertModel.from_torch(torch_model, device, backend,
-                                     torch_model.config)
+        model = BertModel.from_torch(torch_model, device, backend)
         model.config = torch_model.config
         model._torch_model = torch_model  # prevent destroy torch model.
         return model
@@ -621,3 +645,66 @@ class BertModel:
         model = BertModelNoPooler.from_npz(file_name, config, device)
         pooler = BertPooler.from_npz(file_name, device)
         return BertModel(model, pooler, backend="turbo")
+
+
+class BertForMaskedLM:
+    def __init__(self, model, lm_head, config=None):
+        self.config = config
+        self.bertmodel_nopooler = model
+        self.lm_head = lm_head
+
+    def __call__(self,
+                 inputs: AnyTensor,
+                 attention_masks: Optional[AnyTensor] = None,
+                 token_type_ids: Optional[AnyTensor] = None,
+                 position_ids: Optional[AnyTensor] = None,
+                 head_mask: Optional[AnyTensor] = None,
+                 inputs_embeds: Optional[AnyTensor] = None,
+                 output_attentions: Optional[bool] = None,
+                 output_hidden_states: Optional[bool] = None,
+                 prediction_scores: Optional[AnyTensor] = None,
+                 return_type: Optional[ReturnType] = None):
+
+        encoder_outputs = self.bertmodel_nopooler(
+            inputs,
+            attention_masks,
+            token_type_ids,
+            position_ids,
+            inputs_embeds=inputs_embeds,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+            return_type=ReturnType.turbo_transformers)
+
+        sequence_output = encoder_outputs[0]
+
+        prediction_scores = self.lm_head(
+            input_tensor=sequence_output, 
+            hidden_act=self.config.hidden_act, 
+            return_type=return_type,
+            output=prediction_scores)
+
+        return (prediction_scores,) + encoder_outputs[1:]
+
+    @staticmethod
+    def from_torch(model: TorchBertModel):
+        """
+        Args:
+            model : a PyTorch Bert Model
+        """
+        device = model.device
+        if 'cpu' in device.type and torch.cuda.is_available():
+            model.to(device)
+
+        embeddings = BertEmbeddings.from_torch(model.bert.embeddings)
+        encoder = BertEncoder.from_torch(model.bert.encoder)
+        bertmodel_nopooler = BertModelNoPooler(embeddings, encoder)
+        lm_head = BertLMHead.from_torch(model.cls.predictions)
+        return BertForMaskedLM(bertmodel_nopooler, lm_head, model.config)
+
+    @staticmethod
+    def from_pretrained(model_name_or_path: str):
+        torch_model = TorchBertModel.from_pretrained(model_name_or_path)
+        model = BertForMaskedLM.from_torch(torch_model)
+        model._torch_model = torch_model
+        return model
+
