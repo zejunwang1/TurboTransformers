@@ -276,6 +276,18 @@ PYBIND11_MODULE(turbo_transformers_cxx, m) {
                                       std::move(dense_bias));
       }))
       .def("__call__", &layers::BertPooler::operator());
+  
+  py::class_<layers::BertMLMHead>(m, "BertMLMHead")
+      .def(py::init([](core::Tensor &dense_weight, core::Tensor &dense_bias,
+                       core::Tensor &decoder_weight, core::Tensor &decoder_bias,
+                       core::Tensor &layer_norm_weight, 
+                       core::Tensor &layer_norm_bias) -> layers::BertMLMHead * {
+        return new layers::BertMLMHead(
+            std::move(dense_weight), std::move(dense_bias),
+            std::move(decoder_weight), std::move(decoder_bias),
+            std::move(layer_norm_weight), std::move(layer_norm_bias));
+      }))
+      .def("__call__", &layers::BertMLMHead::operator());
 
   py::class_<layers::PrepareBertMasks>(m, "PrepareBertMasks")
       .def(py::init())
