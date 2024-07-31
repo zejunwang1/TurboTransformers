@@ -30,6 +30,7 @@
 #include "turbo_transformers/layers/bert_intermediate.h"
 #include "turbo_transformers/layers/bert_output.h"
 #include "turbo_transformers/layers/bert_pooler.h"
+#include "turbo_transformers/layers/bert_lm_head.h"
 #include "turbo_transformers/layers/multi_headed_attention.h"
 #include "turbo_transformers/layers/multi_headed_attention_smart_batch.h"
 #include "turbo_transformers/layers/positionwise_ffn.h"

@@ -13,7 +13,7 @@ namespace turbo_transformers {
 namespace layers {
 
 void BertLMHead::operator()(const core::Tensor& input_tensor, core::Tensor* output,
-                             const std::string& hidden_act = "gelu") const {
+                            const std::string& hidden_act) const {
   TT_ENFORCE_EQ(input_tensor.n_dim(), 3, "input's dim should be 3, not %d",
                 input_tensor.n_dim());
   TT_ENFORCE_EQ(input_tensor.shape(2), dense_weight_.shape(0),
