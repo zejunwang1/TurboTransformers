@@ -29,6 +29,7 @@ from transformers.models.bert.modeling_bert import BertLayer as TorchBertLayer
 from transformers.models.bert.modeling_bert import BertEncoder as TorchBertEncoder
 from transformers.models.bert.modeling_bert import BertModel as TorchBertModel
 from transformers.models.bert.modeling_bert import BertPooler as TorchBertPooler
+from transformers.models.bert.modeling_bert import BertForMaskedLM as TorchBertForMaskedLM
 from transformers.models.bert.modeling_bert import BertLMPredictionHead as TorchBertLMHead
 
 import enum
@@ -703,7 +704,7 @@ class BertForMaskedLM:
 
     @staticmethod
     def from_pretrained(model_name_or_path: str):
-        torch_model = TorchBertModel.from_pretrained(model_name_or_path)
+        torch_model = TorchBertForMaskedLM.from_pretrained(model_name_or_path)
         model = BertForMaskedLM.from_torch(torch_model)
         model._torch_model = torch_model
         return model
