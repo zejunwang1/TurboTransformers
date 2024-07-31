@@ -694,7 +694,7 @@ class BertForMaskedLM:
         """
         device = model.device
         if 'cpu' in device.type and torch.cuda.is_available():
-            model.to(device)
+            model.cuda()
 
         embeddings = BertEmbeddings.from_torch(model.bert.embeddings)
         encoder = BertEncoder.from_torch(model.bert.encoder)
