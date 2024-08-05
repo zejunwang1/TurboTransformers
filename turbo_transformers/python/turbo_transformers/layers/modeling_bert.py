@@ -687,14 +687,18 @@ class BertForMaskedLM:
         return (prediction_scores,) + encoder_outputs[1:]
 
     @staticmethod
-    def from_torch(model: TorchBertModel):
+    def from_torch(model: TorchBertModel, device: Optional[torch.device] = None):
         """
         Args:
             model : a PyTorch Bert Model
+            device : cpu or GPU
         """
-        device = model.device
-        if 'cpu' in device.type and torch.cuda.is_available():
-            model.cuda()
+        if device is None:
+            device = model.device
+            if 'cpu' in device.type and torch.cuda.is_available():
+                model.cuda()
+        else:
+            model.to(device)
 
         embeddings = BertEmbeddings.from_torch(model.bert.embeddings)
         encoder = BertEncoder.from_torch(model.bert.encoder)
@@ -703,9 +707,9 @@ class BertForMaskedLM:
         return BertForMaskedLM(bertmodel_nopooler, lm_head, model.config)
 
     @staticmethod
-    def from_pretrained(model_name_or_path: str):
+    def from_pretrained(model_name_or_path: str, device: Optional[torch.device] = None):
         torch_model = TorchBertForMaskedLM.from_pretrained(model_name_or_path)
-        model = BertForMaskedLM.from_torch(torch_model)
+        model = BertForMaskedLM.from_torch(torch_model, device=device)
         model._torch_model = torch_model
         return model
 
