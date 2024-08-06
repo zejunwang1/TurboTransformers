@@ -655,8 +655,8 @@ class BertForMaskedLM:
         self.lm_head = lm_head
 
     def __call__(self,
-                 inputs: AnyTensor,
-                 attention_masks: Optional[AnyTensor] = None,
+                 input_ids: AnyTensor,
+                 attention_mask: Optional[AnyTensor] = None,
                  token_type_ids: Optional[AnyTensor] = None,
                  position_ids: Optional[AnyTensor] = None,
                  head_mask: Optional[AnyTensor] = None,
@@ -667,8 +667,8 @@ class BertForMaskedLM:
                  return_type: Optional[ReturnType] = None):
 
         encoder_outputs = self.bertmodel_nopooler(
-            inputs,
-            attention_masks,
+            input_ids,
+            attention_mask,
             token_type_ids,
             position_ids,
             inputs_embeds=inputs_embeds,
