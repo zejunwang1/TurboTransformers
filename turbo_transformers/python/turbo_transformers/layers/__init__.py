@@ -11,6 +11,7 @@
 # permissions and limitations under the License.
 # See the AUTHORS file for names of contributors.
 
+'''
 from .modeling_bert import BertEmbeddings, BertIntermediate, BertOutput, BertAttention, BertLayer, SequencePool, \
     BertEncoder, BertModel, PoolingType, BertPooler
 from .qmodeling_bert import QBertIntermediate, QBertOutput, QBertLayer, QBertEncoder, QBertModel
@@ -42,3 +43,19 @@ __all__ = [
     'DistilBertModel', 'MultiHeadedAttentionSmartBatch', 'BertLayerSmartBatch',
     'BertEncoderSmartBatch', 'BertModelSmartBatch', 'DistilBertModel'
 ]
+'''
+
+from .modeling_bert import BertEmbeddings, BertIntermediate, BertOutput, BertAttention, BertLayer, SequencePool, \
+    BertEncoder, BertModel, PoolingType, BertPooler, BertForMaskedLM
+
+from .return_type import ReturnType
+
+from .bert_tensor_usage import get_bert_tensor_usage_record
+from .static_allocator import greedy_by_size_offset_calculation
+
+__all__ = [
+    'BertEmbeddings', 'BertIntermediate', 'BertOutput', 'BertAttention',
+    'BertLayer', 'BertEncoder', 'BertModel', 'ReturnType', 'BertPooler',
+    'SequencePool', 'PoolingType', 'BertForMaskedLM'
+]
+
