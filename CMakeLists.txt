@@ -26,9 +26,9 @@ set(TURBO_TRANSFORMERS_VERSION 0.6.0)
 
 
 option(WITH_PROFILER  "Compile with profiler"   OFF)
-option(WITH_GPU       "Build with GPU"          OFF)
+option(WITH_GPU       "Build with GPU"          ON)
 option(WITH_MODULE_BENCHMAKR       "Catch2 unitest with benchmarking"          ON)
-option(WITH_TENSOR_CORE       "Use Tensor core to accelerate"          OFF)
+option(WITH_TENSOR_CORE       "Use Tensor core to accelerate"          ON)
 
 
 if (WITH_GPU)
@@ -44,7 +44,7 @@ if(WITH_GPU)
   include_directories(3rd/cub)
 endif()
 
-set(MKLROOT "/opt/intel/mkl" CACHE PATH "The mkl library root")
+set(MKLROOT "/opt/intel/oneapi/mkl/latest" CACHE PATH "The mkl library root")
 set(BLAS_PROVIDER "mkl" CACHE STRING "Set the blas provider library, in [openblas, mkl, blis]")
 if (${BLAS_PROVIDER} STREQUAL "mkl")
     find_package(MKL REQUIRED)

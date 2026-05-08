@@ -1,15 +1,6 @@
 [submodule "3rd/dlpack"]
   path = 3rd/dlpack
   url = https://github.com/dmlc/dlpack.git
-[submodule "3rd/pybind11"]
-  path = 3rd/pybind11
-  url = https://github.com/pybind/pybind11.git
-[submodule "3rd/abseil"]
-  path = 3rd/abseil
-  url = https://github.com/abseil/abseil-cpp.git
-[submodule "3rd/Catch2"]
-  path = 3rd/Catch2
-  url = https://github.com/catchorg/Catch2.git
 [submodule "3rd/loguru"]
   path = 3rd/loguru
   url = https://github.com/emilk/loguru.git
@@ -19,3 +10,15 @@
 [submodule "3rd/FP16"]
   path = 3rd/FP16
   url = https://github.com/Maratyszcza/FP16
+[submodule "3rd/Catch2"]
+	path = 3rd/Catch2
+	url = https://github.com/zejunwang1/Catch2.git
+	branch = turbo_transformers
+[submodule "3rd/abseil"]
+	path = 3rd/abseil
+	url = https://github.com/zejunwang1/abseil-cpp.git
+	branch = turbo_transformers
+[submodule "3rd/pybind11"]
+	path = 3rd/pybind11
+	url = https://github.com/pybind/pybind11.git
+	branch = v2.11
