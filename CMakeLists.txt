@@ -78,7 +78,8 @@ endif ()
 IF (UNIX AND NOT APPLE)
     # Link absl_base needs -lrt on linux. It is necessary on CentOS.
     find_library(RT_LIBRARY NAMES librt.a
-            PATHS $ENV{CONDA_PREFIX}/lib/
+            PATHS /usr/lib/x86_64-linux-gnu
+            $ENV{CONDA_PREFIX}/lib/
             $ENV{CONDA_PREFIX}/x86_64-conda_cos6-linux-gnu/sysroot/lib/
             $ENV{CONDA_PREFIX}/x86_64-conda_cos6-linux-gnu/sysroot/usr/lib/)
     if (NOT RT_LIBRARY)
