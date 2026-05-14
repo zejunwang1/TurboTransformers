@@ -503,7 +503,7 @@ class BertModel:
             self.backend = "turbo"
 
     def __call__(self,
-                 inputs: AnyTensor,
+                 input_ids: AnyTensor,
                  attention_masks: Optional[AnyTensor] = None,
                  token_type_ids: Optional[AnyTensor] = None,
                  position_ids: Optional[AnyTensor] = None,
@@ -516,7 +516,7 @@ class BertModel:
                  return_type: Optional[ReturnType] = None):
         if self.backend == "turbo":
             encoder_outputs = self.bertmodel_nopooler(
-                inputs,
+                input_ids,
                 attention_masks,
                 token_type_ids,
                 position_ids,
@@ -539,17 +539,17 @@ class BertModel:
             ) + encoder_outputs[1:]
         elif self.backend == "onnxrt":
             if attention_masks is None:
-                attention_masks = np.ones(inputs.size(), dtype=np.int64)
+                attention_masks = np.ones(input_ids.size(), dtype=np.int64)
             else:
                 attention_masks = attention_masks.cpu().numpy()
             if token_type_ids is None:
-                token_type_ids = np.zeros(inputs.size(), dtype=np.int64)
+                token_type_ids = np.zeros(input_ids.size(), dtype=np.int64)
             else:
                 token_type_ids = token_type_ids.cpu().numpy()
-            data = [inputs.cpu().numpy(), attention_masks, token_type_ids]
+            data = [input_ids.cpu().numpy(), attention_masks, token_type_ids]
             outputs = self.onnxmodel.run(inputs=data)
             for idx, item in enumerate(outputs):
-                outputs[idx] = torch.tensor(item, device=inputs.device)
+                outputs[idx] = torch.tensor(item, device=input_ids.device)
             return outputs
 
     @staticmethod
