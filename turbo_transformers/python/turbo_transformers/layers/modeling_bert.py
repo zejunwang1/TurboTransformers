@@ -426,7 +426,7 @@ class BertModelNoPooler:
     def __call__(
             self,
             inputs: AnyTensor,
-            attention_masks: Optional[AnyTensor] = None,
+            attention_mask: Optional[AnyTensor] = None,
             token_type_ids: Optional[AnyTensor] = None,
             position_ids: Optional[AnyTensor] = None,
             head_mask: Optional[AnyTensor] = None,
@@ -436,14 +436,14 @@ class BertModelNoPooler:
             pooling_type: PoolingType = PoolingType.
             FIRST,  #the following parameters are exclusive for turbo
             return_type: Optional[ReturnType] = None):
-        attention_masks = try_convert(create_empty_if_none(attention_masks))
+        attention_mask = try_convert(create_empty_if_none(attention_mask))
         token_type_ids = try_convert(create_empty_if_none(token_type_ids))
         position_ids = try_convert(create_empty_if_none(position_ids))
         inputs = try_convert(inputs)
-        extended_attention_masks = cxx.Tensor.create_empty()
+        extended_attention_mask = cxx.Tensor.create_empty()
 
-        self.prepare(inputs, attention_masks, token_type_ids, position_ids,
-                     extended_attention_masks)
+        self.prepare(inputs, attention_mask, token_type_ids, position_ids,
+                     extended_attention_mask)
 
         hidden_cache = self.embeddings(
             inputs,
@@ -453,7 +453,7 @@ class BertModelNoPooler:
 
         encoder_outputs = self.encoder(
             hidden_states=hidden_cache,
-            attention_mask=extended_attention_masks,
+            attention_mask=extended_attention_mask,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
             return_type=return_type)
@@ -504,7 +504,7 @@ class BertModel:
 
     def __call__(self,
                  input_ids: AnyTensor,
-                 attention_masks: Optional[AnyTensor] = None,
+                 attention_mask: Optional[AnyTensor] = None,
                  token_type_ids: Optional[AnyTensor] = None,
                  position_ids: Optional[AnyTensor] = None,
                  head_mask: Optional[AnyTensor] = None,
@@ -517,7 +517,7 @@ class BertModel:
         if self.backend == "turbo":
             encoder_outputs = self.bertmodel_nopooler(
                 input_ids,
-                attention_masks,
+                attention_mask,
                 token_type_ids,
                 position_ids,
                 inputs_embeds=inputs_embeds,
@@ -538,15 +538,15 @@ class BertModel:
                 pooler_output,
             ) + encoder_outputs[1:]
         elif self.backend == "onnxrt":
-            if attention_masks is None:
-                attention_masks = np.ones(input_ids.size(), dtype=np.int64)
+            if attention_mask is None:
+                attention_mask = np.ones(input_ids.size(), dtype=np.int64)
             else:
-                attention_masks = attention_masks.cpu().numpy()
+                attention_mask = attention_mask.cpu().numpy()
             if token_type_ids is None:
                 token_type_ids = np.zeros(input_ids.size(), dtype=np.int64)
             else:
                 token_type_ids = token_type_ids.cpu().numpy()
-            data = [input_ids.cpu().numpy(), attention_masks, token_type_ids]
+            data = [input_ids.cpu().numpy(), attention_mask, token_type_ids]
             outputs = self.onnxmodel.run(inputs=data)
             for idx, item in enumerate(outputs):
                 outputs[idx] = torch.tensor(item, device=input_ids.device)
