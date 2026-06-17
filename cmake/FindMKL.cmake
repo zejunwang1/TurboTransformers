@@ -78,7 +78,8 @@ if (NOT APPLE)
                    ${MKLROOT}/lib/intel64
                    ${MKLROOT}/../lib
                    ${MKLROOT}/../lib/intel64
-                   ${MKLROOT}/../../compiler/latest/lib)
+                   ${MKLROOT}/../../compiler/latest/lib
+		   /usr/lib/x86_64-linux-gnu)
 
     set(MKL_LIBRARIES ${MKL_LIBRARIES} ${IOMP_LIBRARY})
 endif ()
